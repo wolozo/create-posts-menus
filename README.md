@@ -10,7 +10,7 @@ Add WordPress Posts and Menus with the function w_cpm_values()
 
 ## Description
 
-```
+```php
 /**
  * Values for 'Create Posts and Menus' Plugin
  *
