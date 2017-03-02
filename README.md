@@ -11,6 +11,11 @@ Add WordPress Posts and Menus with the function w_cpm_values()
 ## Description
 
 ```
+/**
+ * Values for 'Create Posts and Menus' Plugin
+ *
+ * @return array
+ */
 function w_cpm_values() {  
   return array(
 
@@ -18,12 +23,18 @@ function w_cpm_values() {
     //
     // If 'slug' omitted, it will be generated via title.
     //
-    // If slug exists, page will not be created.
+    // If slug exists, post will not be created.
     'posts' => array(
       array(
         'title'   => 'Page 1',
         'slug'    => 'page-1',
         'content' => 'When these people drew near the house where Dorothy was standing in the doorway.',
+        'post_meta' => array(
+          array(
+            'meta_key'   => 'key',
+            'meta_value' => 'value'
+          ),
+        ),
       ),
 
       array(

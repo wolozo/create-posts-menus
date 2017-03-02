@@ -5,7 +5,7 @@
  * Plugin URI:        https://github.com/wolozo/create-posts-menus
  * GitHub Plugin URI: https://github.com/wolozo/create-posts-menus
  * Description:       Create Posts and Menus within the theme code.
- * Version:           0.0.1
+ * Version:           0.0.2
  * Author:            Wolozo
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       cpam
@@ -15,6 +15,8 @@
 
 // @fixme w_cpam_create_menu_items() Custom Links are not verified and will be duplicated.
 // @todo Assign Menus To Theme Locations
+// @todo Posts: post_excerpt, comment_status, post_password, Featured Image URL
+// @todo Posts: Global: comment_status, ping_status, update_post_meta()
 
 /**
  * Make sure our global variables are set.
@@ -58,7 +60,7 @@ function w_cpam_create_menu( $menuName ) {
  *
  */
 function w_cpam_create_menus() {
-  if ( false === ( $w_cpm_values = w_cpam_get_values() ) && ! isset( $w_cpm_values[ 'menus' ] ) ) {
+  if ( false === ( $w_cpm_values = w_cpam_get_values() ) || ! isset( $w_cpm_values[ 'menus' ] ) ) {
     return;
   }
 
@@ -171,17 +173,23 @@ function w_cpam_create_menu_items( $menuName, $menu ) {
 //add_action( 'init', 'w_cpam_create_menu_items', 20 );
 
 /**
- * Create pages on init from $w_cpam_pages
+ * Create posts on init
  *
  * @todo handle post_type
  */
 function w_cpam_create_posts() {
 
-  if ( false === ( $w_cpm_values = w_cpam_get_values() ) && ! is_array( $w_cpm_values[ 'pages' ] ) ) {
+  if ( false === ( $w_cpm_values = w_cpam_get_values() ) && ! is_array( $w_cpm_values[ 'posts' ] ) ) {
     return;
   }
 
-  foreach ( $w_cpm_values[ 'pages' ] as $index => $newPage ) {
+  foreach ( $w_cpm_values[ 'posts' ] as $index => $newPage ) {
+
+    if ( ! isset( $newPage[ 'title' ] ) ) {
+      var_dump( '$newPage[ \'title\' ] REQUIRED' );
+      var_dump( $newPage );
+      die;
+    }
 
     // add slug from title if empty.
     if ( ! array_key_exists( 'slug', $newPage ) ) : $newPage[ 'slug' ] = sanitize_title( $newPage[ 'title' ] ); endif;
@@ -202,7 +210,16 @@ function w_cpam_create_posts() {
       );
 
       // and create page
-      wp_insert_post( $postarr );
+      $postID = wp_insert_post( $postarr );
+
+      // Handle post_meta
+      if ( 0 != $postID && isset( $newPage[ 'post_meta' ] ) ) {
+        foreach ( $newPage[ 'post_meta' ] as $index => $post_meta ) {
+          update_post_meta( $postID,
+                            $post_meta[ 'meta_key' ],
+                            $post_meta[ 'meta_value' ] );
+        }
+      }
     }
   }
 }
